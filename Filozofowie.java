@@ -3,11 +3,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Filozofowie{
 	
-	int liczbaFilozofow = 5;
-	int liczbaWidelcow = liczbaFilozofow;
+	static int liczbaFilozofow = 5;
 	
 	public static void main(String[] args){
-		
+		Filozof[] filozofowie = new Filozof[liczbaFilozofow];
+		Widelec[] widelce = new Widelec[liczbaFilozofow];
+		Thread[] f = new Thread[liczbaFilozofow];
+		for (int i = 0; i<liczbaFilozofow; i++) {
+			widelce[i] = new Widelec(i);
+		}
+		for (int i = 0; i<liczbaFilozofow; i++) {
+			filozofowie[i] = new Filozof(i, widelce[i], widelce[(i+1)%liczbaFilozofow]);
+			f[i] = new Thread(filozofowie[i]);
+			f[i].start();
+		}
 	}
 
 }
@@ -35,9 +44,10 @@ class Filozof implements Runnable{
 	int idFilozofa;
 	Widelec lewy;
 	Widelec prawy;
-	int liczbaTurJedzenia;
-	public Filozof(int id) {
+	public Filozof(int id, Widelec lewy, Widelec prawy) {
 		this.idFilozofa=id;
+		this.lewy=lewy;
+		this.prawy=prawy;
 	}
 	public void run() {
 		while(true) {
@@ -49,7 +59,6 @@ class Filozof implements Runnable{
 				if (lewy.podnies(this)) {
 					if (prawy.podnies(this)) {
 						System.out.println("Filozof " + idFilozofa + " je.");
-						liczbaTurJedzenia++;
 						Thread.sleep((int)(1000*Math.random()));
 						prawy.odloz(this);
 					}
